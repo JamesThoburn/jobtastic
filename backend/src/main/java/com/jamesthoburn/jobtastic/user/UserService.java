@@ -1,6 +1,6 @@
 package com.jamesthoburn.jobtastic.user;
 
-import com.jamesthoburn.jobtastic.exception.UserNotFoundException;
+import com.jamesthoburn.jobtastic.exception.ResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +42,7 @@ public class UserService {
     public UserResponse getUserById(Long id) {
         return userRepository.findById(id)
                 .map(this::mapToResponse)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
     @Transactional
@@ -58,13 +58,13 @@ public class UserService {
 
             User updatedUser = userRepository.save(user);
             return mapToResponse(updatedUser);
-        }).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+        }).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
     @Transactional
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("User not found with id: " + id);
+            throw new ResourceNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
     }

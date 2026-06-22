@@ -1,6 +1,6 @@
 package com.jamesthoburn.jobtastic.user;
 
-import com.jamesthoburn.jobtastic.exception.UserNotFoundException;
+import com.jamesthoburn.jobtastic.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -110,7 +110,7 @@ public class UserServiceTest {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(99L));
+        assertThrows(ResourceNotFoundException.class, () -> userService.getUserById(99L));
         verify(userRepository, times(1)).findById(99L);
     }
 
@@ -150,7 +150,7 @@ public class UserServiceTest {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(UserNotFoundException.class, () -> userService.updateUser(99L, updateRequest));
+        assertThrows(ResourceNotFoundException.class, () -> userService.updateUser(99L, updateRequest));
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -178,7 +178,7 @@ public class UserServiceTest {
         when(userRepository.existsById(99L)).thenReturn(false);
 
         // Act & Assert
-        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(99L));
+        assertThrows(ResourceNotFoundException.class, () -> userService.deleteUser(99L));
         verify(userRepository, times(1)).existsById(99L);
         verify(userRepository, never()).deleteById(anyLong());
     }

@@ -2,6 +2,7 @@ import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../components/layout/Logo";
 import Button from "../components/ui/Button";
+import { authService } from "../services/authService";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -9,9 +10,20 @@ export default function SignupPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSignup = (e: SubmitEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
+
+    try {
+      await authService.signup({ firstName, lastName, email, password });
+
+      navigate("/login")
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Signup failed. Please try again."); 
+    }
+
 
     // Handle signup logic here
     console.log("Signing up with:", { firstName, lastName, email, password });
@@ -106,6 +118,8 @@ export default function SignupPage() {
                 className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-colors"
               />
             </div>
+
+            {error && <p className="text-red-500 text-sm">{error}</p>}
 
             {/* Sign up button */}
             <Button

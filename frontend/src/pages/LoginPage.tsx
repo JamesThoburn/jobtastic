@@ -1,17 +1,37 @@
-import { useState, type SubmitEvent } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 import Logo from "../components/layout/Logo";
 import Button from "../components/ui/Button";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { authService } from "../services/authService";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
-  const handleLogin = (e: SubmitEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Logging in with:", { email, password });
+    setError("");
+    setLoading(true);
+
+    try {
+      console.log("Attempting login...");
+      await authService.login({ email, password });
+      console.log("Adding to AuthContext")
+      await login();
+      console.log("Login successful, navigating to dashboard...");
+      navigate("/dashboard");
+    } catch (err: any) {
+      console.log("Login failed:", err)
+      const message = err.response?.data?.message || "Login failed. Please try again.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -78,12 +98,14 @@ export default function LoginPage() {
               />
             </div>
 
+            {error && <div className="p-3 bg-red-100 text-red-700 rounded">{error}</div>}
+
             {/* Log in button */}
             <Button
               type="submit"
               variant="primary"
               size="md"
-              className="w-full flex justify-center mt-2"
+              className="w-full flex justify-center"
             >
               Log in
             </Button>
