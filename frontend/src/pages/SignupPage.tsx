@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../components/layout/Logo";
 import Button from "../components/ui/Button";
