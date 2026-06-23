@@ -7,5 +7,10 @@ body {
 }
 
 :root {
-  font-family: 'Plus Jakarta Sans' ,system-ui, sans-serif
+  font-family: 'Plus Jakarta Sans' ,system-ui, sans-serif;
+  --border: rgba(15, 23, 42, 0.08)
+}
+
+@theme inline {
+  --color-border: var(--border)
 }

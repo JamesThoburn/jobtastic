@@ -10,6 +10,7 @@ import com.jamesthoburn.jobtastic.auth.token.VerificationTokenRepository;
 import com.jamesthoburn.jobtastic.exception.AuthException;
 import com.jamesthoburn.jobtastic.exception.ResourceNotFoundException;
 import com.jamesthoburn.jobtastic.user.User;
+import com.jamesthoburn.jobtastic.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -34,19 +36,22 @@ public class AuthController {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final CookieUtils cookieUtils;
+    private final UserRepository userRepository;
 
     public AuthController(RegistrationService registrationService,
                           VerificationTokenRepository tokenRepository,
                           AuthenticationManager authenticationManager,
                           JwtService jwtService,
                           RefreshTokenService refreshTokenService,
-                          CookieUtils cookieUtils) {
+                          CookieUtils cookieUtils,
+                          UserRepository userRepository) {
         this.registrationService = registrationService;
         this.tokenRepository = tokenRepository;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
         this.cookieUtils = cookieUtils;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/signup")
@@ -114,8 +119,14 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
         }
 
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User could not be found with email: " + email));
+
         return ResponseEntity.ok(Map.of(
-                "email", authentication.getName()
+                "email", email,
+                "firstName", user.getFirstName(),
+                "lastName", user.getLastName()
         ));
     }
 
