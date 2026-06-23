@@ -1,6 +1,5 @@
 package com.jamesthoburn.jobtastic.auth;
 
-import com.jamesthoburn.jobtastic.auth.LoginRequest;
 import com.jamesthoburn.jobtastic.auth.jwt.JwtService;
 import com.jamesthoburn.jobtastic.auth.register.RegistrationService;
 import com.jamesthoburn.jobtastic.auth.token.RefreshToken;
