@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Plus } from "lucide-react";
+import { MapPin, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type ApplicationStatus =
@@ -49,6 +49,33 @@ export default function DashboardPage() {
       setApplications([response.data, ...applications]);
     } catch (error) {
       console.error("Failed to add", error);
+    }
+  }
+
+  const handleUpdate = async (id: number | undefined, field: string, value: any) => {
+    if (!id) return;
+
+    setApplications((prev) =>
+      prev.map((app) => (app.id === id ? { ...app, [field]: value } : app))
+    );
+
+    try {
+      await axios.patch(`/api/v1/applications/${id}`, { [field]: value }, {
+        withCredentials: true
+      });
+    } catch (error) {
+      console.error("Failed to auto-save", error);
+    }
+  }
+
+  const handleDelete = async (id: number | undefined) => {
+    if (!id) return;
+
+    try {
+      await axios.delete(`/api/v1/applications/${id}`, {withCredentials: true});
+      setApplications((prev) => prev.filter((app) => app.id !== id));
+    } catch (error) {
+      console.error("Failed to delete application", error)
     }
   }
 
@@ -102,21 +129,74 @@ export default function DashboardPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {applications.map((app) => (
-                <tr key={app.id}>
+                <tr key={app.id} className="group">
                   <td className="px-4 py-3">
-                    {app.companyName}
+                    <input
+                      type="text"
+                      value={app.companyName || ""}
+                      onChange={(e) => handleUpdate(app.id, "companyName", e.target.value)}
+                      className="w-full bg-transparent border-none focus:ring-0 focus:outline-0 text-slate-900"
+                      placeholder="Company name..."
+                    />
                   </td>
                   <td className="px-4 py-3">
-                    {app.positionName}
+                    <input
+                      type="text"
+                      value={app.positionName || ""}
+                      onChange={(e) => handleUpdate(app.id, "positionName", e.target.value)}
+                      className="w-full bg-transparent border-none focus:ring-0 focus:outline-0 text-slate-900"
+                      placeholder="Role name..."
+                    />
                   </td>
                   <td className="px-4 py-3">
-                    {app.status.substring(0,1).toUpperCase()}{app.status.substring(1,app.status.length).toLowerCase()}
+                    <select
+                      value={app.status}
+                      onChange={(e) => handleUpdate(app.id, "status", e.target.value)}
+                      className="w-full bg-transparent border-none focus:ring-0 focus:outline-0 text-slate-900"
+                    >
+                      <option value="APPLIED">Applied</option>
+                      <option value="INTERVIEWING">Interviewing</option>
+                      <option value="OFFER">Offer</option>
+                      <option value="REJECTED">Rejected</option>
+                    </select>
                   </td>
                   <td className="px-4 py-3">
-                    {app.dateApplied}
+                    <input
+                      type="date"
+                      value={app.dateApplied || ""}
+                      onChange={(e) => handleUpdate(app.id, "dateApplied", e.target.value)}
+                      className="w-full bg-transparent border-none focus:ring-0 focus:outline-0 text-slate-900"
+                    />
                   </td>
                   <td className="px-4 py-3">
-                    {app.location} {app.notes}
+                    <div className="flex flex-col gap-0.5 text-xs">
+                      <div className="flex items-center gap-1 text-slate-500">
+                        <MapPin size={11} className="shrink-0" />
+                        <input
+                          type="text"
+                          value={app.location || ""}
+                          onChange={(e) => handleUpdate(app.id, "location", e.target.value)}
+                          placeholder="Enter location here..."
+                          className="bg-transparent border-none focus:ring-0 focus:outline-0"
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={app.notes || ""}
+                        onChange={(e) => handleUpdate(app.id, "notes", e.target.value)}
+                        placeholder="Enter notes here..."
+                        className="bg-transparent border-none focus:ring-0 focus:outline-0"
+                      />
+                    </div>
+                  </td>
+
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => handleDelete(app.id)}
+                      className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-600 hover:cursor-pointer transition-opacity"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </td>
                 </tr>
               ))}

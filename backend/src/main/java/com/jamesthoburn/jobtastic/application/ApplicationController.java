@@ -43,6 +43,9 @@ public class ApplicationController {
             @RequestBody Map<String, Object> updates,
             Authentication authentication) {
         User user = (User) authentication.getPrincipal();
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
         return ResponseEntity.ok(applicationService.updateApplication(id, updates, user));
     }
 
