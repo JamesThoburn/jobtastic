@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MapPin, Plus, Trash2 } from "lucide-react";
+import { MapPin, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type ApplicationStatus =
@@ -29,6 +29,7 @@ interface Application {
 
 export default function DashboardPage() {
   const [applications, setApplications] = useState<Application[]>([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -112,6 +113,11 @@ export default function DashboardPage() {
     return styles[color] || { badge: "bg-slate-50 text-slate-700 ring-slate-600/20", dot: "bg-slate-500" };
   };
 
+  const filteredApplications = applications.filter((app) => 
+    app.companyName.toLowerCase().includes(search.toLowerCase()) ||
+    app.positionName.toLowerCase().includes(search.toLowerCase())
+  )
+
   return (
     <div>
       <div className="mb-6">
@@ -119,7 +125,7 @@ export default function DashboardPage() {
           My Applications
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Tracking {applications.length} applications — last updated {getLastUpdated()}
+          Tracking {filteredApplications.length} {filteredApplications.length === 1 ? 'application' : 'applications'} {applications.length > 0 && ` — last updated ${getLastUpdated()}`}
         </p>
       </div>
 
@@ -127,6 +133,20 @@ export default function DashboardPage() {
       <div className="bg-white rounded-xl border border-border shadow-sm overflow-hidden">
         {/* Toolbar */}
         <div className="flex flex-wrap items-center gap-3 p-4 border-b border-border">
+          <div className="relative flex-1 min-w-48">
+            <Search 
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+            <input 
+              type="text"
+              placeholder="Search company or role..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-slate-50 border border-border rounded-lg pl-9 pr-3 py-2 text-sm text=slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
+            />
+          </div>
+
           <button
             onClick={handleAddApplication}
             className="ml-auto flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors shrink-0 hover:cursor-pointer"
@@ -161,7 +181,7 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {applications.map((app) => (
+              {filteredApplications.map((app) => (
                 <tr key={app.id} className="group">
                   <td className="px-4 py-3">
                     <input
