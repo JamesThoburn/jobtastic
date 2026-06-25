@@ -8,6 +8,13 @@ type ApplicationStatus =
   | "OFFER"
   | "REJECTED";
 
+const ApplicationStatusOptions = [
+  { label: "Applied", value: "APPLIED", color: "blue" },
+  { label: "Interviewing", value: "INTERVIEWING", color: "amber" },
+  { label: "Offer", value: "OFFER", color: "emerald" },
+  { label: "Rejected", value: "REJECTED", color: "rose" }
+]
+
 interface Application {
   id?: number,
   companyName: string,
@@ -72,12 +79,22 @@ export default function DashboardPage() {
     if (!id) return;
 
     try {
-      await axios.delete(`/api/v1/applications/${id}`, {withCredentials: true});
+      await axios.delete(`/api/v1/applications/${id}`, { withCredentials: true });
       setApplications((prev) => prev.filter((app) => app.id !== id));
     } catch (error) {
       console.error("Failed to delete application", error)
     }
   }
+
+  const getStatusStyles = (color: string) => {
+    const styles: Record<string, { badge: string, dot: string }> = {
+      blue: { badge: "bg-blue-50 text-blue-700 ring-blue-200", dot: "bg-blue-500" },
+      amber: { badge: "bg-amber-50 text-amber-700 ring-amber-200", dot: "bg-amber-500" },
+      emerald: { badge: "bg-emerald-50 text-emerald-700 ring-emerald-200", dot: "bg-emerald-500" },
+      rose: { badge: "bg-rose-50 text-rose-600 ring-rose-200", dot: "bg-rose-400" },
+    };
+    return styles[color] || { badge: "bg-slate-50 text-slate-700 ring-slate-600/20", dot: "bg-slate-500" };
+  };
 
   return (
     <div>
@@ -149,16 +166,24 @@ export default function DashboardPage() {
                     />
                   </td>
                   <td className="px-4 py-3">
-                    <select
-                      value={app.status}
-                      onChange={(e) => handleUpdate(app.id, "status", e.target.value)}
-                      className="w-full bg-transparent border-none focus:ring-0 focus:outline-0 text-slate-900"
-                    >
-                      <option value="APPLIED">Applied</option>
-                      <option value="INTERVIEWING">Interviewing</option>
-                      <option value="OFFER">Offer</option>
-                      <option value="REJECTED">Rejected</option>
-                    </select>
+                    <div className="relative inline-flex items-center">
+                      <select
+                        value={app.status}
+                        onChange={(e) => handleUpdate(app.id, "status", e.target.value)}
+                        className={`appearance-none pl-7 pr-3 py-1 rounded-full text-xs font-medium ring-1 ring-inset hover:cursor-pointer focus:outline-0 ${getStatusStyles(ApplicationStatusOptions.find(o => o.value === app.status)?.color || 'slate').badge}`}
+                      >
+                        {ApplicationStatusOptions.map((s) => (
+                          <option
+                            key={s.value}
+                            value={s.value}
+                          >
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className={`absolute left-2.5 top-1/2 -mt-1 h-2 w-2 rounded-full ${getStatusStyles(ApplicationStatusOptions.find(o => o.value === app.status)?.color || 'slate').dot}`} />
+
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <input
