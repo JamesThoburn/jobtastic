@@ -86,6 +86,22 @@ export default function DashboardPage() {
     }
   }
 
+  const getLastUpdated = () => {
+    if (applications.length === 0) return "No applications yet";
+
+    const dates = applications.map((app) => 
+      app.updatedAt ? new Date(app.updatedAt).getTime() : 0
+    ).filter((time) => time > 0);
+
+    if (dates.length === 0) return "Unknown";
+
+    const lastDate = new Date(Math.max(...dates));
+    return lastDate.toLocaleDateString(undefined, {
+      month: "long",
+      day: "numeric"
+    });
+  }
+
   const getStatusStyles = (color: string) => {
     const styles: Record<string, { badge: string, dot: string }> = {
       blue: { badge: "bg-blue-50 text-blue-700 ring-blue-200", dot: "bg-blue-500" },
@@ -103,7 +119,7 @@ export default function DashboardPage() {
           My Applications
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Tracking {applications.length} applications — last updated today
+          Tracking {applications.length} applications — last updated {getLastUpdated()}
         </p>
       </div>
 
