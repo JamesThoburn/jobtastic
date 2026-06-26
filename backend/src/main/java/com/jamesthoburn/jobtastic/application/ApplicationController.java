@@ -2,7 +2,6 @@ package com.jamesthoburn.jobtastic.application;
 
 import com.jamesthoburn.jobtastic.exception.ResourceNotFoundException;
 import com.jamesthoburn.jobtastic.user.User;
-import com.jamesthoburn.jobtastic.user.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,11 +14,9 @@ import java.util.Map;
 @RequestMapping("/api/v1/applications")
 public class ApplicationController {
     private final ApplicationService applicationService;
-    private final UserRepository userRepository;
 
-    public ApplicationController(ApplicationService applicationService, UserRepository userRepository) {
+    public ApplicationController(ApplicationService applicationService) {
         this.applicationService = applicationService;
-        this.userRepository = userRepository;
     }
 
     @PostMapping
@@ -55,6 +52,9 @@ public class ApplicationController {
             Authentication authentication
     ) {
         User user = (User) authentication.getPrincipal();
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
         applicationService.deleteApplication(id, user);
         return ResponseEntity.noContent().build();
     }

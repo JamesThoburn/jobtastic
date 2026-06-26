@@ -56,8 +56,6 @@ public class ApplicationService {
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
 
-        System.out.println("DEBUG: App User ID: " + application.getUser().getId());
-
         if (!application.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("You do not have the permission to delete this application");
         }
