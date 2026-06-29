@@ -27,6 +27,8 @@ interface Application {
   updatedAt?: string
 }
 
+type EditableField = "companyName" | "positionName" | "status" | "dateApplied" | "location" | "notes";
+
 export default function DashboardPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [search, setSearch] = useState("");
@@ -41,7 +43,7 @@ export default function DashboardPage() {
       } catch (error) {
         console.error("Failed to fetch", error)
       }
-    }
+    } 
     fetchData();
   }, [])
 
@@ -60,7 +62,7 @@ export default function DashboardPage() {
     }
   }
 
-  const handleUpdate = async (id: number | undefined, field: string, value: any) => {
+  const handleUpdate = async (id: number | undefined, field: EditableField, value: Application[EditableField]) => {
     if (!id) return;
 
     setApplications((prev) =>
@@ -143,7 +145,7 @@ export default function DashboardPage() {
               placeholder="Search company or role..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-50 border border-border rounded-lg pl-9 pr-3 py-2 text-sm text=slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
+              className="w-full bg-slate-50 border border-border rounded-lg pl-9 pr-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
             />
           </div>
 

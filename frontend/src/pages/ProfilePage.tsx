@@ -1,6 +1,6 @@
 import { Clock, Mail, ShieldCheck, User } from "lucide-react";
-import { useAuth } from "../context/AuthContext"
-import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth"
+import { useState } from "react";
 import Button from "../components/ui/Button";
 
 const TABS = [
@@ -9,17 +9,14 @@ const TABS = [
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const [memberSince, setMemberSince] = useState("");
   const [activeTab, setActiveTab] = useState<"account">("account");
 
-  useEffect(() => {
-    if (user != null) {
-      const createdAt = new Date(user.createdAt);
-      setMemberSince(
-        createdAt.toLocaleDateString(undefined, { month: "long", year: "numeric" })
-      )
-    }
-  }, [user])
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString(undefined, {
+      month: "long",
+      year: "numeric"
+    })
+    : "";
 
   return (
     <div className="p-6 max-w-4xl mx-auto w-full">

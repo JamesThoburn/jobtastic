@@ -1,4 +1,4 @@
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom"
 import Logo from "../components/layout/Logo";
 import Button from "../components/ui/Button";

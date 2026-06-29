@@ -20,8 +20,14 @@ export default function SignupPage() {
       await authService.signup({ firstName, lastName, email, password });
 
       navigate("/login")
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Signup failed. Please try again."); 
+    } catch (err: unknown) {
+      // Check if it is an object and has a response property
+      if (err && typeof err === 'object' && 'response' in err) {
+        const errorWithResponse = err as { response: { data: { message: string } } };
+        setError(errorWithResponse.response.data.message || "Signup failed."); 
+      } else {
+        setError("Signup failed. Please try again.");
+      }
     }
 
 

@@ -1,8 +1,8 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import Logo from "../components/layout/Logo";
 import Button from "../components/ui/Button";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { authService } from "../services/authService";
 
 export default function LoginPage() {
@@ -10,13 +10,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
   const handleLogin = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
     try {
       console.log("Attempting login...");
@@ -25,12 +23,17 @@ export default function LoginPage() {
       await login();
       console.log("Login successful, navigating to dashboard...");
       navigate("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.log("Login failed:", err)
-      const message = err.response?.data?.message || "Login failed. Please try again.";
-      setError(message);
-    } finally {
-      setLoading(false);
+
+      if (err instanceof Error) {
+        setError(err.message)
+      } else if (err && typeof err === 'object' && 'response' in err) {
+        const errorWithResponse = err as { response: { data: { message: string } } };
+        setError(errorWithResponse.response.data.message || "Login failed. Please try again.");
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      };
     }
   }
 
