@@ -104,4 +104,14 @@ class UserServiceTest {
 
         assertThrows(AuthException.class, () -> userService.changePassword(existingUser, request));
     }
+
+    @Test
+    @DisplayName("deleteUser should delete the user from the repository")
+    void deleteUser_Success() {
+        User existingUser = new User("Jane", "Doe", "jane@example.com", "encodedPassword");
+
+        userService.deleteUser(existingUser);
+
+        verify(userRepository).delete(existingUser);
+    }
 }

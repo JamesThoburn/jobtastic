@@ -67,6 +67,11 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void deleteUser(User user) {
+        userRepository.delete(user);
+    }
+
     private UserResponse mapToResponse(User user) {
         return new UserResponse(
                 user.getId(),
