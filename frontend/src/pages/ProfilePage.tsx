@@ -1,5 +1,5 @@
 import { Clock, Mail, ShieldCheck, User } from "lucide-react";
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import apiService from "../services/apiService";
 import { useAuth } from "../hooks/useAuth";
 import Button from "../components/ui/Button";
@@ -18,14 +18,16 @@ type PasswordFormState = {
   confirmNewPassword: string;
 };
 
+const getProfileFormState = (currentUser: { firstName?: string; lastName?: string; email?: string } | null | undefined): ProfileFormState => ({
+  firstName: currentUser?.firstName ?? "",
+  lastName: currentUser?.lastName ?? "",
+  email: currentUser?.email ?? "",
+});
+
 export default function ProfilePage() {
   const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState<"account">("account");
-  const [profileForm, setProfileForm] = useState<ProfileFormState>({
-    firstName: "",
-    lastName: "",
-    email: "",
-  });
+  const [profileForm, setProfileForm] = useState<ProfileFormState>(() => getProfileFormState(user));
   const [passwordForm, setPasswordForm] = useState<PasswordFormState>({
     currentPassword: "",
     newPassword: "",
@@ -37,19 +39,7 @@ export default function ProfilePage() {
   const [profileError, setProfileError] = useState<string | null>(null);
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setProfileForm({
-      firstName: user?.firstName ?? "",
-      lastName: user?.lastName ?? "",
-      email: user?.email ?? "",
-    });
-    setPasswordForm({
-      currentPassword: "",
-      newPassword: "",
-      confirmNewPassword: "",
-    });
-  }, [user]);
+  const profileFormKey = user?.email ?? user?.id ?? "guest";
 
   const memberSince = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString(undefined, {
@@ -157,7 +147,7 @@ export default function ProfilePage() {
 
       {activeTab === "account" && (
         <div className="flex flex-col gap-5 max-w-xl">
-          <form onSubmit={handleProfileSubmit} className="bg-white rounded-2xl border border-border shadow-sm p-6">
+          <form key={profileFormKey} onSubmit={handleProfileSubmit} className="bg-white rounded-2xl border border-border shadow-sm p-6">
             <h2 className="text-sm font-semibold text-slate-900 mb-5 flex items-center gap-2">
               <User size={15} className="text-slate-500" />
               Account details
