@@ -1,51 +1,53 @@
 package com.jamesthoburn.jobtastic.user;
 
+import com.jamesthoburn.jobtastic.auth.CookieUtils;
+import com.jamesthoburn.jobtastic.auth.jwt.JwtService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
+    private final JwtService jwtService;
+    private final CookieUtils cookieUtils;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtService jwtService, CookieUtils cookieUtils) {
         this.userService = userService;
+        this.jwtService = jwtService;
+        this.cookieUtils = cookieUtils;
     }
 
-    // CREATE a new user
-    @PostMapping
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
-        UserResponse savedUser = userService.createUser(userRequest);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    @PatchMapping("/me")
+    public ResponseEntity<UserResponse> updateProfile(
+            @Valid @RequestBody UpdateProfileRequest request,
+            Authentication authentication,
+            HttpServletResponse response
+    ) {
+        User user = (User) authentication.getPrincipal();
+        String previousEmail = user.getEmail();
+
+        UserResponse updatedUser = userService.updateProfile(user, request);
+
+        if (!previousEmail.equals(request.getEmail())) {
+            String accessToken = jwtService.generateToken(request.getEmail());
+            response.addHeader("Set-Cookie", cookieUtils.createAccessCookie(accessToken).toString());
+        }
+
+        return ResponseEntity.ok(updatedUser);
     }
 
-    // GET all users
-    @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    // GET a user by id
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
-    }
-
-    // UPDATE an existing user
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok(userService.updateUser(id, userRequest));
-    }
-
-    // DELETE a user
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    @PatchMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(
+            @Valid @RequestBody UpdatePasswordRequest request,
+            Authentication authentication
+    ) {
+        User user = (User) authentication.getPrincipal();
+        userService.changePassword(user, request);
         return ResponseEntity.noContent().build();
     }
 }
