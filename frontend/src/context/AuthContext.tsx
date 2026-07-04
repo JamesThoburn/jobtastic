@@ -6,6 +6,7 @@ interface AuthContextType {
     loading: boolean;
     login: () => Promise<void>;
     logout: () => Promise<void>;
+    updateUser: (updatedUser: Partial<User>) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

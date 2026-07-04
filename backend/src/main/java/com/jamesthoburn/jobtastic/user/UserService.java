@@ -1,15 +1,11 @@
 package com.jamesthoburn.jobtastic.user;
 
-import com.jamesthoburn.jobtastic.exception.ResourceNotFoundException;
+import com.jamesthoburn.jobtastic.exception.AuthException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
-@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
@@ -21,52 +17,30 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse createUser(UserRequest userRequest) {
-        User user = new User();
-        user.setFirstName(userRequest.getFirstName());
-        user.setLastName(userRequest.getLastName());
-        user.setEmail(userRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+    public UserResponse updateProfile(User user, UpdateProfileRequest request) {
+        if (userRepository.existsByEmail(request.getEmail()) && !user.getEmail().equals(request.getEmail())) {
+            throw new AuthException("Email is already registered");
+        }
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
 
         User savedUser = userRepository.save(user);
+
         return mapToResponse(savedUser);
     }
 
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-    public UserResponse getUserById(Long id) {
-        return userRepository.findById(id)
-                .map(this::mapToResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-    }
-
     @Transactional
-    public UserResponse updateUser(Long id, UserRequest userRequest) {
-        return userRepository.findById(id).map(user -> {
-            user.setFirstName(userRequest.getFirstName());
-            user.setLastName(userRequest.getLastName());
-            user.setEmail(userRequest.getEmail());
-
-            if (userRequest.getPassword() != null && !userRequest.getPassword().trim().isEmpty()) {
-                user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-            }
-
-            User updatedUser = userRepository.save(user);
-            return mapToResponse(updatedUser);
-        }).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-    }
-
-    @Transactional
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User not found with id: " + id);
+    public void changePassword(User user, UpdatePasswordRequest request) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new AuthException("Current password is incorrect");
         }
-        userRepository.deleteById(id);
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new AuthException("New passwords do not match");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     private UserResponse mapToResponse(User user) {

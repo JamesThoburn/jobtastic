@@ -3,7 +3,7 @@ import { AuthContext } from "./AuthContext";
 import apiService from "../services/apiService";
 
 export interface User {
-    id: string;
+    id: string | number;
     email: string;
     firstName: string;
     lastName: string;
@@ -50,7 +50,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const value = useMemo(() => ({ user, login, logout, loading }), [user, loading]);
+    const updateUser = (updatedUser: Partial<User>) => {
+        setUser((currentUser) => {
+            if (!currentUser) {
+                return null;
+            }
+
+            return { ...currentUser, ...updatedUser };
+        });
+    };
+
+    const value = useMemo(() => ({ user, login, logout, loading, updateUser }), [user, loading]);
 
     return (
         <AuthContext.Provider value={value}>
