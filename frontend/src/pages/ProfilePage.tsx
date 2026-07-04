@@ -63,8 +63,14 @@ export default function ProfilePage() {
         email: profileForm.email.trim(),
       });
 
+      const emailChanged = profileForm.email.trim() !== user?.email;
+
       updateUser(data);
-      setProfileMessage("Profile updated successfully.");
+      if (emailChanged) {
+        setProfileMessage("Profile updated. Your email changed, so you have been logged out and must verify your new email before signing in again.");
+      } else {
+        setProfileMessage("Profile updated successfully.");
+      }
     } catch (error: unknown) {
       const axiosError = error as { response?: { data?: { message?: string } } };
       setProfileError(axiosError.response?.data?.message ?? "Unable to update profile right now.");

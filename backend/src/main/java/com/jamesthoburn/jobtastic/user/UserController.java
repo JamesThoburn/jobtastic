@@ -34,8 +34,9 @@ public class UserController {
         UserResponse updatedUser = userService.updateProfile(user, request);
 
         if (!previousEmail.equals(request.getEmail())) {
-            String accessToken = jwtService.generateToken(request.getEmail());
-            response.addHeader("Set-Cookie", cookieUtils.createAccessCookie(accessToken).toString());
+            response.addHeader("Set-Cookie", cookieUtils.cleanAccessCookie().toString());
+            response.addHeader("Set-Cookie", cookieUtils.cleanRefreshCookie().toString());
+            return ResponseEntity.status(200).body(updatedUser);
         }
 
         return ResponseEntity.ok(updatedUser);
