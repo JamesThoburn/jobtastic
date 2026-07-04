@@ -51,4 +51,18 @@ public class UserController {
         userService.changePassword(user, request);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteCurrentUser(
+            Authentication authentication,
+            HttpServletResponse response
+    ) {
+        User user = (User) authentication.getPrincipal();
+        userService.deleteUser(user);
+
+        response.addHeader("Set-Cookie", cookieUtils.cleanAccessCookie().toString());
+        response.addHeader("Set-Cookie", cookieUtils.cleanRefreshCookie().toString());
+
+        return ResponseEntity.noContent().build();
+    }
 }

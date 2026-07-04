@@ -1,5 +1,6 @@
-import { Clock, Mail, ShieldCheck, User } from "lucide-react";
+import { Clock, Mail, ShieldCheck, Trash2, User } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import apiService from "../services/apiService";
 import { useAuth } from "../hooks/useAuth";
 import Button from "../components/ui/Button";
@@ -25,7 +26,8 @@ const getProfileFormState = (currentUser: { firstName?: string; lastName?: strin
 });
 
 export default function ProfilePage() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"account">("account");
   const [profileForm, setProfileForm] = useState<ProfileFormState>(() => getProfileFormState(user));
   const [passwordForm, setPasswordForm] = useState<PasswordFormState>({
@@ -39,6 +41,10 @@ export default function ProfilePage() {
   const [profileError, setProfileError] = useState<string | null>(null);
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const profileFormKey = user?.email ?? user?.id ?? "guest";
 
   const memberSince = user?.createdAt
@@ -99,6 +105,24 @@ export default function ProfilePage() {
       setPasswordError(axiosError.response?.data?.message ?? "Unable to update password right now.");
     } finally {
       setPasswordSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    setDeleteError(null);
+    setDeleteMessage(null);
+
+    try {
+      await apiService.delete("/users/me");
+      await logout();
+      setDeleteConfirmOpen(false);
+      navigate("/login");
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      setDeleteError(axiosError.response?.data?.message ?? "Unable to delete your account right now.");
+    } finally {
+      setDeletingAccount(false);
     }
   };
 
@@ -266,6 +290,52 @@ export default function ProfilePage() {
               </Button>
             </div>
           </form>
+
+          <div className="bg-white rounded-2xl border border-rose-200 shadow-sm p-6">
+            <h2 className="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
+              <Trash2 size={15} className="text-rose-500" />
+              Delete account
+            </h2>
+            <p className="text-sm text-slate-600 mb-4">
+              This action is permanent and will remove your account and saved data.
+            </p>
+            {deleteMessage ? <p className="text-sm text-emerald-600 mb-3">{deleteMessage}</p> : null}
+            {deleteError ? <p className="text-sm text-rose-600 mb-3">{deleteError}</p> : null}
+
+            {!deleteConfirmOpen ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-fit font-semibold border-rose-200 text-rose-600 hover:bg-rose-50"
+                onClick={() => setDeleteConfirmOpen(true)}
+              >
+                Delete account
+              </Button>
+            ) : (
+              <div className="flex flex-col gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4">
+                <p className="text-sm font-medium text-rose-700">Are you sure? This cannot be undone.</p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="bg-rose-600 hover:bg-rose-700"
+                    onClick={handleDeleteAccount}
+                    disabled={deletingAccount}
+                  >
+                    {deletingAccount ? "Deleting..." : "Yes, delete my account"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDeleteConfirmOpen(false)}
+                    disabled={deletingAccount}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

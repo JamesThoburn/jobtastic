@@ -80,4 +80,21 @@ class UserControllerTest {
         verify(userService).changePassword(eq(user), eq(request));
         assertEquals(204, result.getStatusCode().value());
     }
+
+    @Test
+    @DisplayName("deleteCurrentUser should delegate to the service and clear auth cookies")
+    void deleteCurrentUser_WhenCalled_DeletesUserAndClearsCookies() {
+        User user = new User("Jane", "Doe", "jane@example.com", "encodedPassword");
+        Authentication authentication = new TestingAuthenticationToken(user, null);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        when(cookieUtils.cleanAccessCookie()).thenReturn(ResponseCookie.from("access_token", "").build());
+        when(cookieUtils.cleanRefreshCookie()).thenReturn(ResponseCookie.from("refresh_token", "").build());
+
+        ResponseEntity<Void> result = userController.deleteCurrentUser(authentication, response);
+
+        verify(userService).deleteUser(eq(user));
+        assertEquals(204, result.getStatusCode().value());
+        assertTrue(response.getHeader("Set-Cookie").contains("access_token"));
+    }
 }
