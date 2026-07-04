@@ -54,15 +54,14 @@ class UserControllerTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         when(userService.updateProfile(eq(user), any(UpdateProfileRequest.class))).thenReturn(expectedResponse);
-        when(jwtService.generateToken("new@example.com")).thenReturn("new-access-token");
-        when(cookieUtils.createAccessCookie("new-access-token")).thenReturn(ResponseCookie.from("access_token", "new-access-token").build());
+        when(cookieUtils.cleanAccessCookie()).thenReturn(ResponseCookie.from("access_token", "").build());
+        when(cookieUtils.cleanRefreshCookie()).thenReturn(ResponseCookie.from("refresh_token", "").build());
 
         ResponseEntity<UserResponse> result = userController.updateProfile(request, authentication, response);
 
         assertEquals(200, result.getStatusCode().value());
         assertEquals(expectedResponse, result.getBody());
         assertTrue(response.getHeader("Set-Cookie").contains("access_token"));
-        verify(jwtService).generateToken("new@example.com");
     }
 
     @Test

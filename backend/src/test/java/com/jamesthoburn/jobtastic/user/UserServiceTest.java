@@ -1,5 +1,7 @@
 package com.jamesthoburn.jobtastic.user;
 
+import com.jamesthoburn.jobtastic.auth.email.EmailService;
+import com.jamesthoburn.jobtastic.auth.token.VerificationTokenRepository;
 import com.jamesthoburn.jobtastic.exception.AuthException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +27,12 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private EmailService emailService;
+
+    @Mock
+    private VerificationTokenRepository verificationTokenRepository;
 
     @InjectMocks
     private UserService userService;
@@ -45,6 +55,7 @@ class UserServiceTest {
         assertEquals("Smith", response.getLastName());
         assertEquals("new@example.com", response.getEmail());
         verify(userRepository).save(existingUser);
+        verify(emailService).sendVerificationEmail(eq("new@example.com"), anyString());
     }
 
     @Test
