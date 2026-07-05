@@ -209,7 +209,7 @@ export default function DashboardPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {filteredApplications.map((app) => (
-                <tr key={app.id} className="group">
+                <tr key={app.id} className="group hover:bg-slate-50/70 transition-colors">
                   <td className="px-4 py-3">
                     <input
                       type="text"
