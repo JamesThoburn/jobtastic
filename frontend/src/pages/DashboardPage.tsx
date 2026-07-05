@@ -1,6 +1,6 @@
 import axios from "axios";
 import { MapPin, Plus, Search, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type ApplicationStatus =
   | "APPLIED"
@@ -32,6 +32,7 @@ type EditableField = "companyName" | "positionName" | "status" | "dateApplied" |
 export default function DashboardPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -115,10 +116,15 @@ export default function DashboardPage() {
     return styles[color] || { badge: "bg-slate-50 text-slate-700 ring-slate-600/20", dot: "bg-slate-500" };
   };
 
-  const filteredApplications = applications.filter((app) => 
-    app.companyName.toLowerCase().includes(search.toLowerCase()) ||
-    app.positionName.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredApplications = useMemo(() => {
+    return applications.filter((app) => {
+      const matchSearch = app.companyName.toLowerCase().includes(search.toLowerCase()) ||
+        app.positionName.toLowerCase().includes(search.toLowerCase());
+      const matchStatus =
+        statusFilter === "ALL" || app.status === statusFilter;
+      return matchSearch && matchStatus;
+    })
+  }, [search, statusFilter, applications])
 
   return (
     <div>
@@ -147,6 +153,25 @@ export default function DashboardPage() {
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-slate-50 border border-border rounded-lg pl-9 pr-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
             />
+          </div>
+
+          {/* Status filter pills */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {(["All", "Applied", "Interviewing", "Offer", "Rejected"] as const).map(
+              (s) => (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s.toUpperCase())}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:cursor-pointer ${
+                    statusFilter === s.toUpperCase()
+                      ? "bg-slate-900 text-white"
+                      : "bg-slate-50 text-slate-600 border border-border hover:bg-slate-100"
+                  }`}
+                >
+                  {s}
+                </button>
+              )
+            )}
           </div>
 
           <button
