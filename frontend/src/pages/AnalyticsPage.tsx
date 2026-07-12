@@ -107,7 +107,7 @@ export default function AnalyticsPage() {
                         </PieChart>
                     </ResponsiveContainer>
                     <div className="flex flex-col gap-1.5 mt-2">
-                        {STATUS_BREAKDOWN.map(({ name, value, fill }) => (
+                        {STATUS_BREAKDOWN.map(({ name, fill }) => (
                             <div key={name} className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: fill }} />
