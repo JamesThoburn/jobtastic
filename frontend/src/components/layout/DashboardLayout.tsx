@@ -1,11 +1,12 @@
-import { LayoutDashboard, LogOut, Menu, X } from "lucide-react";
+import { BarChart, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import Logo from "./Logo";
 
 const NAV_ITEMS = [
-    { label: "Applications", icon: LayoutDashboard, active: true }
+    { label: "Applications", icon: LayoutDashboard },
+    { label: "Analytics", icon: BarChart }
 ]
 
 export default function DashboardLayout() {
@@ -24,7 +25,7 @@ export default function DashboardLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="h-screen bg-slate-50 flex">
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/30 z-20 lg:hidden"
@@ -47,16 +48,19 @@ export default function DashboardLayout() {
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
+        <nav className="flex-1 px-3 py-4 flex flex-col gap-1.5">
             {NAV_ITEMS.map(({ label, icon: Icon }) => {
                 const isActive = (
                     label === "Applications" && location.pathname === "/dashboard"
+                    ||
+                    label === "Analytics" && location.pathname === "/analytics"
                 );
                 return (
                     <button
                         key={label}
                         onClick={() => {
                             if (label === "Applications") navigate("dashboard");
+                            if (label === "Analytics") navigate("analytics")
                         }}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:cursor-pointer ${
                             isActive
