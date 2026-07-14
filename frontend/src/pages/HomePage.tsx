@@ -1,7 +1,22 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LayoutDashboard, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom"
 import Logo from "../components/layout/Logo";
 import Button from "../components/ui/Button";
+
+const FEATURES = [
+    {
+        icon: LayoutDashboard,
+        title: "One source of truth",
+        desc: "Track every application in a single table. Company, role, status, notes — all in one glance.",
+        accent: "bg-indigo-50 text-indigo-600"
+    },
+    {
+        icon: TrendingUp,
+        title: "Visualise your pipeline",
+        desc: "See exactly where you stand — how many interviews, offers, and rejections at a glance.",
+        accent: "bg-emerald-50 text-emerald-600"
+    }
+]
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -12,6 +27,15 @@ export default function HomePage() {
             <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-border">
                 <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
                     <Logo />
+
+                    <nav className="hidden md:flex items-center gap-8">
+                        <a
+                            href="#features"
+                            className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
+                        >
+                            Features
+                        </a>
+                    </nav>
 
                     <div className="flex items-center gap-3">
                         <Button
@@ -72,6 +96,35 @@ export default function HomePage() {
                         <p className="text-sm text-slate-400">
                             No credit card required
                         </p>
+                    </div>
+                </section>
+
+                {/* Features */}
+                <section id="features" className="bg-slate-50 border-t border-border">
+                    <div className="max-w-6xl mx-auto px-6 py-20">
+                        <h2 className="text-2xl font-bold text-slate-900 mb-2 text-center">
+                            Everything your job search needs
+                        </h2>
+                        <p className="text-slate-500 text-center mb-12">
+                            Built for the modern job seeker — structured, calm and, clear.
+                        </p>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {FEATURES.map(({ icon: Icon, title, desc, accent }) => (
+                                <div
+                                    key={title}
+                                    className="bg-white rounded-2xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow"
+                                >
+                                    <div
+                                        className={`w-10 h-10 ${accent} rounded-xl flex items-center justify-center mb-4`}
+                                    >
+                                        <Icon size={20} />
+                                    </div>
+                                    <h3 className="font-semibold text-slate-900 mb-2">{title}</h3>
+                                    <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </section>
             </main>
