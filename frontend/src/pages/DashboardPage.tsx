@@ -44,7 +44,7 @@ export default function DashboardPage() {
       } catch (error) {
         console.error("Failed to fetch", error)
       }
-    } 
+    }
     fetchData();
   }, [])
 
@@ -93,7 +93,7 @@ export default function DashboardPage() {
   const getLastUpdated = () => {
     if (applications.length === 0) return "No applications yet";
 
-    const dates = applications.map((app) => 
+    const dates = applications.map((app) =>
       app.updatedAt ? new Date(app.updatedAt).getTime() : 0
     ).filter((time) => time > 0);
 
@@ -142,11 +142,11 @@ export default function DashboardPage() {
         {/* Toolbar */}
         <div className="flex flex-wrap items-center gap-3 p-4 border-b border-border">
           <div className="relative flex-1 min-w-48">
-            <Search 
+            <Search
               size={15}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             />
-            <input 
+            <input
               type="text"
               placeholder="Search company or role..."
               value={search}
@@ -162,11 +162,10 @@ export default function DashboardPage() {
                 <button
                   key={s}
                   onClick={() => setStatusFilter(s.toUpperCase())}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:cursor-pointer ${
-                    statusFilter === s.toUpperCase()
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:cursor-pointer ${statusFilter === s.toUpperCase()
                       ? "bg-slate-900 text-white"
                       : "bg-slate-50 text-slate-600 border border-border hover:bg-slate-100"
-                  }`}
+                    }`}
                 >
                   {s}
                 </button>
