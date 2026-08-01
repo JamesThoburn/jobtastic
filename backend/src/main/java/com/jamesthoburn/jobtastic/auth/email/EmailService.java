@@ -22,4 +22,15 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendResetEmail(String toEmail, String rawToken, long expiryMinutes) {
+        String resetLink = "http://localhost:5173/reset-password?token=" + rawToken;
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Reset your Jobtastic password");
+        message.setText("Click here to reset your password: " + resetLink +
+                "\n\nThis link expires in " + expiryMinutes + " minutes.");
+        mailSender.send(message);
+    }
 }

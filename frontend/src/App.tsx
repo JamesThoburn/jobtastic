@@ -8,6 +8,8 @@ import ProfilePage from "./pages/ProfilePage";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import { AuthProvider } from "./context/AuthProvider";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 export default function App() {
   return (
@@ -17,6 +19,9 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>
