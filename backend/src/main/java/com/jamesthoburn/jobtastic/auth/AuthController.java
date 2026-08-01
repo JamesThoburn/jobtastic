@@ -2,10 +2,7 @@ package com.jamesthoburn.jobtastic.auth;
 
 import com.jamesthoburn.jobtastic.auth.jwt.JwtService;
 import com.jamesthoburn.jobtastic.auth.register.RegistrationService;
-import com.jamesthoburn.jobtastic.auth.token.RefreshToken;
-import com.jamesthoburn.jobtastic.auth.token.RefreshTokenService;
-import com.jamesthoburn.jobtastic.auth.token.VerificationToken;
-import com.jamesthoburn.jobtastic.auth.token.VerificationTokenRepository;
+import com.jamesthoburn.jobtastic.auth.token.*;
 import com.jamesthoburn.jobtastic.exception.AuthException;
 import com.jamesthoburn.jobtastic.exception.ResourceNotFoundException;
 import com.jamesthoburn.jobtastic.user.User;
@@ -35,6 +32,7 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
     private final CookieUtils cookieUtils;
     private final UserRepository userRepository;
+    private final PasswordResetService passwordResetService;
 
     public AuthController(RegistrationService registrationService,
                           VerificationTokenRepository tokenRepository,
@@ -42,7 +40,8 @@ public class AuthController {
                           JwtService jwtService,
                           RefreshTokenService refreshTokenService,
                           CookieUtils cookieUtils,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          PasswordResetService passwordResetService) {
         this.registrationService = registrationService;
         this.tokenRepository = tokenRepository;
         this.authenticationManager = authenticationManager;
@@ -50,6 +49,7 @@ public class AuthController {
         this.refreshTokenService = refreshTokenService;
         this.cookieUtils = cookieUtils;
         this.userRepository = userRepository;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/signup")
@@ -129,4 +129,17 @@ public class AuthController {
         ));
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordResetService.initiateReset(request.getEmail());
+        return ResponseEntity.ok(Map.of("message",
+                "If an account exists with that email, a reset link has been sent"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordResetService.completeReset(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok(Map.of("message",
+                "Password successfully reset."));
+    }
 }

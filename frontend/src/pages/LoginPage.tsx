@@ -17,15 +17,10 @@ export default function LoginPage() {
     setError("");
 
     try {
-      console.log("Attempting login...");
       await authService.login({ email, password });
-      console.log("Adding to AuthContext")
       await login();
-      console.log("Login successful, navigating to dashboard...");
       navigate("/dashboard");
     } catch (err: unknown) {
-      console.log("Login failed:", err)
-
       if (err instanceof Error) {
         setError(err.message)
       } else if (err && typeof err === 'object' && 'response' in err) {
@@ -82,10 +77,10 @@ export default function LoginPage() {
                 <label htmlFor="password" className="text-sm font-medium text-slate-700">
                   Password
                 </label>
-                {/* ADD LOGIC FOR RESETTING PASSWORD */}
                 <button
                   type="button"
                   className="hover:cursor-pointer text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                  onClick={() => navigate("/forgot-password")}
                 >
                   Forgot password?
                 </button>

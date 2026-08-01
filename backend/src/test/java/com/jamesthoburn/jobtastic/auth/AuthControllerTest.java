@@ -2,10 +2,7 @@ package com.jamesthoburn.jobtastic.auth;
 
 import com.jamesthoburn.jobtastic.auth.jwt.JwtService;
 import com.jamesthoburn.jobtastic.auth.register.RegistrationService;
-import com.jamesthoburn.jobtastic.auth.token.RefreshToken;
-import com.jamesthoburn.jobtastic.auth.token.RefreshTokenService;
-import com.jamesthoburn.jobtastic.auth.token.VerificationToken;
-import com.jamesthoburn.jobtastic.auth.token.VerificationTokenRepository;
+import com.jamesthoburn.jobtastic.auth.token.*;
 import com.jamesthoburn.jobtastic.exception.AuthException;
 import com.jamesthoburn.jobtastic.exception.ResourceNotFoundException;
 import com.jamesthoburn.jobtastic.user.User;
@@ -61,11 +58,14 @@ class AuthControllerTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PasswordResetService passwordResetService;
+
     private AuthController authController;
 
     @BeforeEach
     void setUp() {
-        authController = new AuthController(registrationService, tokenRepository, authenticationManager, jwtService, refreshTokenService, cookieUtils, userRepository);
+        authController = new AuthController(registrationService, tokenRepository, authenticationManager, jwtService, refreshTokenService, cookieUtils, userRepository, passwordResetService);
     }
 
     @Test
@@ -179,6 +179,35 @@ class AuthControllerTest {
         assertEquals(200, result.getStatusCode().value());
         assertTrue(response.getHeaders("Set-Cookie").stream().anyMatch(value -> value.contains("access_token")));
         assertTrue(response.getHeaders("Set-Cookie").stream().anyMatch(value -> value.contains("refresh_token")));
+    }
+
+    @Test
+    @DisplayName("forgotPassword should delegate reset initiation and return a success response")
+    void forgotPassword_Success() {
+        ForgotPasswordRequest request = new ForgotPasswordRequest();
+        ReflectionTestUtils.setField(request, "email", "jane@example.com");
+
+        ResponseEntity<?> response = authController.forgotPassword(request);
+
+        verify(passwordResetService).initiateReset("jane@example.com");
+        assertEquals(200, response.getStatusCode().value());
+        Map<String, String> body = (Map<String, String>) response.getBody();
+        assertEquals("If an account exists with that email, a reset link has been sent", body.get("message"));
+    }
+
+    @Test
+    @DisplayName("resetPassword should delegate password completion and return a success response")
+    void resetPassword_Success() {
+        ResetPasswordRequest request = new ResetPasswordRequest();
+        ReflectionTestUtils.setField(request, "token", "reset-token");
+        ReflectionTestUtils.setField(request, "newPassword", "new-password");
+
+        ResponseEntity<?> response = authController.resetPassword(request);
+
+        verify(passwordResetService).completeReset("reset-token", "new-password");
+        assertEquals(200, response.getStatusCode().value());
+        Map<String, String> body = (Map<String, String>) response.getBody();
+        assertEquals("Password successfully reset.", body.get("message"));
     }
 
     @Test

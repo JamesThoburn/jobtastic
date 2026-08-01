@@ -54,4 +54,12 @@ public class PasswordResetToken {
     public void setExpiryDate(Instant expiryDate) {
         this.expiryDate = expiryDate;
     }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 }
