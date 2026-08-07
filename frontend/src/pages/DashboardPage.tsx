@@ -1,6 +1,7 @@
 import axios from "axios";
 import { MapPin, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import ApplicationInputField from "../components/dashboard/ApplicationInputField";
 
 type ApplicationStatus =
   | "APPLIED"
@@ -163,8 +164,8 @@ export default function DashboardPage() {
                   key={s}
                   onClick={() => setStatusFilter(s.toUpperCase())}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:cursor-pointer ${statusFilter === s.toUpperCase()
-                      ? "bg-slate-900 text-white"
-                      : "bg-slate-50 text-slate-600 border border-border hover:bg-slate-100"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-50 text-slate-600 border border-border hover:bg-slate-100"
                     }`}
                 >
                   {s}
@@ -210,19 +211,21 @@ export default function DashboardPage() {
               {filteredApplications.map((app) => (
                 <tr key={app.id} className="group hover:bg-slate-50/70 transition-colors">
                   <td className="px-4 py-3">
-                    <input
+                    <ApplicationInputField
                       type="text"
                       value={app.companyName || ""}
-                      onChange={(e) => handleUpdate(app.id, "companyName", e.target.value)}
+                      onValueChange={(newValue) => handleUpdate(app.id, "companyName", newValue)}
+                      debounceMs={1000}
                       className="w-full bg-transparent border-none focus:ring-0 focus:outline-0 text-slate-900"
                       placeholder="Company name..."
                     />
                   </td>
                   <td className="px-4 py-3">
-                    <input
+                    <ApplicationInputField
                       type="text"
                       value={app.positionName || ""}
-                      onChange={(e) => handleUpdate(app.id, "positionName", e.target.value)}
+                      onValueChange={(newValue) => handleUpdate(app.id, "positionName", newValue)}
+                      debounceMs={1000}
                       className="w-full bg-transparent border-none focus:ring-0 focus:outline-0 text-slate-900"
                       placeholder="Role name..."
                     />
@@ -248,10 +251,11 @@ export default function DashboardPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <input
+                    <ApplicationInputField
                       type="date"
                       value={app.dateApplied || ""}
-                      onChange={(e) => handleUpdate(app.id, "dateApplied", e.target.value)}
+                      onValueChange={(newValue) => handleUpdate(app.id, "dateApplied", newValue)}
+                      debounceMs={1000}
                       className="w-full bg-transparent border-none focus:ring-0 focus:outline-0 text-slate-900"
                     />
                   </td>
@@ -259,20 +263,22 @@ export default function DashboardPage() {
                     <div className="flex flex-col gap-0.5 text-xs">
                       <div className="flex items-center gap-1 text-slate-500">
                         <MapPin size={11} className="shrink-0" />
-                        <input
+                        <ApplicationInputField
                           type="text"
                           value={app.location || ""}
-                          onChange={(e) => handleUpdate(app.id, "location", e.target.value)}
+                          onValueChange={(newValue) => handleUpdate(app.id, "location", newValue)}
+                          debounceMs={1000}
+                          className="w-full bg-transparent border-none focus:ring-0 focus:outline-0"
                           placeholder="Enter location here..."
-                          className="bg-transparent border-none focus:ring-0 focus:outline-0"
                         />
                       </div>
-                      <input
+                      <ApplicationInputField
                         type="text"
                         value={app.notes || ""}
-                        onChange={(e) => handleUpdate(app.id, "notes", e.target.value)}
-                        placeholder="Enter notes here..."
+                        onValueChange={(newValue) => handleUpdate(app.id, "notes", newValue)}
+                        debounceMs={1000}
                         className="bg-transparent border-none focus:ring-0 focus:outline-0"
+                        placeholder="Enter notes here..."
                       />
                     </div>
                   </td>
