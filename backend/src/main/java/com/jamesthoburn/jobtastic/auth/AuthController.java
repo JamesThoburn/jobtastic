@@ -10,6 +10,7 @@ import com.jamesthoburn.jobtastic.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +34,9 @@ public class AuthController {
     private final CookieUtils cookieUtils;
     private final UserRepository userRepository;
     private final PasswordResetService passwordResetService;
+    
+    @Value("${application.frontend.url}")
+    private String frontendUrl;
 
     public AuthController(RegistrationService registrationService,
                           VerificationTokenRepository tokenRepository,
@@ -71,7 +75,7 @@ public class AuthController {
         user.setEnabled(true);
         tokenRepository.delete(vToken);
 
-        response.sendRedirect("http://localhost:5173/login?verified=true");
+        response.sendRedirect(frontendUrl + "/login?verified=true");
     }
 
     @PostMapping("/login")

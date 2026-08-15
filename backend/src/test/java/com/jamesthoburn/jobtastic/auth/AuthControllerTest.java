@@ -66,6 +66,7 @@ class AuthControllerTest {
     @BeforeEach
     void setUp() {
         authController = new AuthController(registrationService, tokenRepository, authenticationManager, jwtService, refreshTokenService, cookieUtils, userRepository, passwordResetService);
+        ReflectionTestUtils.setField(authController, "frontendUrl", "http://localhost:5173");
     }
 
     @Test
