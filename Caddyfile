@@ -2,7 +2,10 @@ jobtastic.uk {
 	handle /api/* {
 		reverse_proxy backend:8080
 	}
-	handle /swagger-ui.html {
+	handle /swagger-ui* {
+		reverse_proxy backend:8080
+	}
+	handle /api-docs* {
 		reverse_proxy backend:8080
 	}
 	handle /* {
