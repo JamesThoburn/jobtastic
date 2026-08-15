@@ -23,10 +23,22 @@ class EmailServiceTest {
 
     @InjectMocks
     private EmailService emailService;
+    
+    private static final String FRONTEND_URL = "http://localhost:5173";
+    private static final String BACKEND_URL = "http://localhost:8080";
 
     @Test
     @DisplayName("sendVerificationEmail should send a verification message")
     void sendVerificationEmail_Success() {
+        java.lang.reflect.Field backendUrlField;
+        try {
+            backendUrlField = EmailService.class.getDeclaredField("backendUrl");
+            backendUrlField.setAccessible(true);
+            backendUrlField.set(emailService, BACKEND_URL);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        
         emailService.sendVerificationEmail("jane@example.com", "abc123");
 
         verify(mailSender).send(any(SimpleMailMessage.class));
@@ -35,6 +47,15 @@ class EmailServiceTest {
     @Test
     @DisplayName("sendResetEmail should send a reset message")
     void sendResetEmail_Success() {
+        java.lang.reflect.Field frontendUrlField;
+        try {
+            frontendUrlField = EmailService.class.getDeclaredField("frontendUrl");
+            frontendUrlField.setAccessible(true);
+            frontendUrlField.set(emailService, FRONTEND_URL);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        
         emailService.sendResetEmail("jane@example.com", "abc123", 30);
 
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
@@ -42,7 +63,7 @@ class EmailServiceTest {
 
         SimpleMailMessage message = messageCaptor.getValue();
         assertEquals("Reset your Jobtastic password", message.getSubject());
-        assertTrue(message.getText().contains("http://localhost:5173/reset-password?token=abc123"));
+        assertTrue(message.getText().contains(FRONTEND_URL + "/reset-password?token=abc123"));
         assertTrue(message.getText().contains("30 minutes"));
     }
 }

@@ -1,5 +1,6 @@
 package com.jamesthoburn.jobtastic.auth.email;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -7,13 +8,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
     private final JavaMailSender mailSender;
+    
+    @Value("${application.frontend.url}")
+    private String frontendUrl;
+    
+    @Value("${application.backend.url}")
+    private String backendUrl;
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
     public void sendVerificationEmail(String to, String token) {
-        String verificationUrl = "http://localhost:8080/api/v1/auth/verify?token=" + token;
+        String verificationUrl = backendUrl + "/api/v1/auth/verify?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
@@ -24,7 +31,7 @@ public class EmailService {
     }
 
     public void sendResetEmail(String toEmail, String rawToken, long expiryMinutes) {
-        String resetLink = "http://localhost:5173/reset-password?token=" + rawToken;
+        String resetLink = frontendUrl + "/reset-password?token=" + rawToken;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
