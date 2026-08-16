@@ -1,4 +1,7 @@
-jobtastic.uk {
+http://:80 {
+	@www host www.jobtastic.uk
+	redir @www https://jobtastic.uk{uri} permanent
+
 	handle /api/* {
 		reverse_proxy backend:8080
 	}
