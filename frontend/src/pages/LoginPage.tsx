@@ -21,11 +21,11 @@ export default function LoginPage() {
       await login();
       navigate("/dashboard");
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else if (err && typeof err === 'object' && 'response' in err) {
+      if (err && typeof err === 'object' && 'response' in err) {
         const errorWithResponse = err as { response: { data: { message: string } } };
         setError(errorWithResponse.response.data.message || "Login failed. Please try again.");
+      } else if (err instanceof Error) {
+        setError(err.message);
       } else {
         setError("An unexpected error occurred. Please try again.");
       };
